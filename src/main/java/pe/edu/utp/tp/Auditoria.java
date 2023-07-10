@@ -5,20 +5,21 @@ import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Clase
-
+// Esta clase se utiliza para capturar las excepciones generadas en tiempo de ejecucion
+// y son guardadas en el archivo auditoria.log con detalles sobre la excepcion.
+//
 public class Auditoria {
     public String pathArchivo = "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectFinal\\src\\main\\java\\pe\\edu\\utp\\Application\\auditoria.log";
-    public void RegistrarExcepcion(String User_, Exception Exception, String MessageException){
+    public void RegistrarExcepcion(String User_, Exception exception){
         String datetime = DateTimeFormatter.ofPattern("dd/MM/yy hh:mm:ss a").format(LocalDateTime.now());
         try{
             File archivo = new File(pathArchivo);
             FileWriter escribir = new FileWriter(archivo, true);
             escribir.write(String.format("[%s] Excepción Capturada!: Usuario: %s | Excepcion: %s | Mensaje: %s\n", datetime,
-                    User_, Exception.toString().split(":")[0], MessageException));
+                    User_, exception.toString().split(":")[0], exception.getMessage()));
             escribir.close();
         }catch (Exception e){
-            System.out.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
+            System.err.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
         }
 
     }
@@ -31,7 +32,7 @@ public class Auditoria {
                     excepcion.toString().split(":")[0], excepcion.getMessage()));
             escribir.close();
         }catch (Exception e){
-            System.out.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
+            System.err.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
         }
 
     }
