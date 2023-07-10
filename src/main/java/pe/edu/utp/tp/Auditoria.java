@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+// Clase
+
 public class Auditoria {
     public String pathArchivo = "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectFinal\\src\\main\\java\\pe\\edu\\utp\\Application\\auditoria.log";
     public void RegistrarExcepcion(String User_, Exception Exception, String MessageException){
@@ -25,7 +27,7 @@ public class Auditoria {
         try{
             File archivo = new File(pathArchivo);
             FileWriter escribir = new FileWriter(archivo, true);
-            escribir.write(String.format("[%s] Excepción Capturada!: Usuario: No logueado | Excepcion: %s | Mensaje: %s\n", datetime,
+            escribir.write(String.format("[%s] Esxcepción Capturada!: Usuario: No logueado | Excepcion: %s | Mensaje: %s\n", datetime,
                     excepcion.toString().split(":")[0], excepcion.getMessage()));
             escribir.close();
         }catch (Exception e){
