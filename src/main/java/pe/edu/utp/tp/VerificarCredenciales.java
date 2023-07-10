@@ -50,11 +50,11 @@ public class VerificarCredenciales {
 
         try {
             archivoLeido = LeerArchivoUsuariosPsk(
-                    "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectoFinalTallerProgramacion\\src\\main\\resources\\password.txt");
+                    "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectoFinal\\src\\main\\resources\\password.txt");
         }catch (FileNotFoundException e){
             auditoria.RegistrarExcepcion(e);
             System.err.println("ERROR: No se pudo abrir el archivo de usuarios y contraseñas.");
-            archivoLeido = false;
+            return false;
         }
 
         do {
@@ -62,8 +62,8 @@ public class VerificarCredenciales {
             user = lector.nextLine();
             System.out.print("Contraseña: ");
             password = lector.nextLine();
+            pskNoValido = false;
             if (intentos > 0 && archivoLeido){
-                pskNoValido = false;
                 for (int i = 0; i < usuariosPskArray[0].length; i++) {
                     if (usuariosPskArray[0][i].equals(user)) {
                         if (usuariosPskArray[1][i].equals(password)) {

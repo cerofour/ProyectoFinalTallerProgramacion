@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 // y son guardadas en el archivo auditoria.log con detalles sobre la excepcion.
 //
 public class Auditoria {
-    public String pathArchivo = "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectFinal\\src\\main\\java\\pe\\edu\\utp\\Application\\auditoria.log";
+    public String pathArchivo = "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectoFinal\\src\\main\\java\\pe\\edu\\utp\\tp\\auditoria.log";
     public void RegistrarExcepcion(String User_, Exception exception){
         String datetime = DateTimeFormatter.ofPattern("dd/MM/yy hh:mm:ss a").format(LocalDateTime.now());
         try{
