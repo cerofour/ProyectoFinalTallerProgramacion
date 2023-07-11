@@ -1,5 +1,7 @@
 package pe.edu.utp.tp;
 
+
+
 public class MenuPrincipal {
 
     public void OpcionesProceso (int opcion){
@@ -9,7 +11,9 @@ public class MenuPrincipal {
                 System.exit(0);
                 break;
             case 1:
-                //
+                MenuSecundario mn = new MenuSecundario();
+                String[] n = {"hoa", "qetlasd", "sdcs"};
+                mn.ImprimirTabla(n);
                 break;
             case 2:
                 //
