@@ -16,7 +16,7 @@ public class Auditoria {
                     User_, Exception.toString().split(":")[0], MessageException));
             escribir.close();
         }catch (Exception e){
-            System.out.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
+            System.err.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
         }
 
     }
@@ -29,7 +29,7 @@ public class Auditoria {
                     excepcion.toString().split(":")[0], excepcion.getMessage()));
             escribir.close();
         }catch (Exception e){
-            System.out.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
+            System.err.println("ERROR: Se generó un error de escritura al registrar la excepcion.");
         }
 
     }
