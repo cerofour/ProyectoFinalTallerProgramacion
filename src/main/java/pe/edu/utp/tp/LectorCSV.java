@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 // Esta clase se utiliza para abrir y leer un archivo CSV.
 // define diversos métodos para extraer información por regsitro/campo, etc.
+
 public class LectorCSV {
 
     BufferedReader lectorArchivoCSV;
