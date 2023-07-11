@@ -11,6 +11,7 @@ import java.util.Scanner;
 public class VerificarCredenciales {
     private int intentos = 3;
     private String[][] usuariosPskArray;
+    private String usuario;
     Auditoria auditoria = new Auditoria();
 
     private boolean LeerArchivoUsuariosPsk(String file_) throws FileNotFoundException {
@@ -35,6 +36,8 @@ public class VerificarCredenciales {
                 usuariosPskArray[1][i] = temporal[i].split("::")[1];
             }
             return true;
+        }else{
+            auditoria.RegistrarAdvertencias("Archivo de contraseñas no contiene usuarios o contraseñas validas.");
         }
 
         contentFile.close();
@@ -45,15 +48,14 @@ public class VerificarCredenciales {
         boolean archivoLeido;
         boolean  pskNoValido;
         String user;
-        String password;
+        String pass;
         Scanner lector = new Scanner(System.in);
 
         try {
-            archivoLeido = LeerArchivoUsuariosPsk(
-                    "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectoFinal\\src\\main\\resources\\password.txt");
+            archivoLeido = LeerArchivoUsuariosPsk("F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectoFinal\\src\\main\\resources\\password.txt");
         }catch (FileNotFoundException e){
-            auditoria.RegistrarExcepcion(e);
             System.err.println("ERROR: No se pudo abrir el archivo de usuarios y contraseñas.");
+            auditoria.RegistrarExcepcionIrrecuperable(e);
             return false;
         }
 
@@ -61,13 +63,14 @@ public class VerificarCredenciales {
             System.out.print("Usuario: ");
             user = lector.nextLine();
             System.out.print("Contraseña: ");
-            password = lector.nextLine();
+            pass = lector.nextLine();
             pskNoValido = false;
             if (intentos > 0 && archivoLeido){
                 for (int i = 0; i < usuariosPskArray[0].length; i++) {
                     if (usuariosPskArray[0][i].equals(user)) {
-                        if (usuariosPskArray[1][i].equals(password)) {
+                        if (usuariosPskArray[1][i].equals(pass)) {
                             System.out.println("MENSAJE: Credenciales correctas!");
+                            usuario = user;
                             return true;
                         } else {
                             intentos--;
@@ -86,6 +89,10 @@ public class VerificarCredenciales {
             }
         } while (intentos > 0);
         return false;
+    }
+
+    public String getUsuario() {
+        return usuario;
     }
 
 }
