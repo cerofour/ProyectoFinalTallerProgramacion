@@ -14,6 +14,11 @@ public class Main {
         Auditoria auditoria = new Auditoria();
         VerificarCredenciales Sesion = new VerificarCredenciales();
 
+        menuPrincipal.AgregarOpcion("Personas por condición de donación dado un departamento");
+        menuPrincipal.AgregarOpcion("Personas por provincia, sexo y condición de donación dado un rango de edades y departamento");
+        menuPrincipal.AgregarOpcion("Donantes por departamento dada una edad y sexo");
+        menuPrincipal.AgregarOpcion("Personas por departamento dada una condición de donación");
+
         // Inicio de sesion
         System.out.println("[+] Login:");
         if(!(Sesion.LoguearUsuario())){
@@ -23,52 +28,18 @@ public class Main {
             System.out.println("MENSAJE: Sesion iniciada correctamente!\n");
             usuario = Sesion.getUsuario();
         }
-        //
 
         // Menu de opciones
+        /*
         do {
-            System.out.println("""
-                    --------------------------------------------------------
-                    MENU PRINCIPAL
-                    --------------------------------------------------------
-                    1) Personas por condición de donación dado un departamento.
-                    2) Personas por provincia, sexo y condición de donación dado un rango de
-                       edades y un departamento.
-                    3) Donantes por departamento dada una edad y sexo.
-                    4) Personas por departamento dada una condición de donación.
-                    0) FIN DEL PROGRAMA
-                    --------------------------------------------------------""");
-            System.out.print("Ingrese opción [0 – 4]: ");
             try {
                 int opcion = leerEntradaUsuario.nextInt();
-                menuPrincipal.OpcionesProceso(opcion);
             }catch (InputMismatchException e){
                 System.err.println("ERROR: Solo se admiten números enteros.");
                 auditoria.RegistrarExcepcion(usuario, e);
             }
 
         } while (true);
-        //
-
-        /*
-        try {
-            lector.Inicializar();
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        }
-
-        Predicate<RegistroCSV> filtrarPorDepartamento = registro -> {
-            if (registro.ValorDeCampo("Departamento").equals("Lambayeque")) {
-                int edad = Integer.parseInt(registro.ValorDeCampo("Edad"));
-                return edad > 19 && edad < 23;
-            }
-            return false;
-        };
-
-        for (int i = 0; i < 10; i++) {
-            RegistroCSV linea = lector.SiguienteRegistroFiltrado(filtrarPorDepartamento);
-            System.out.println(linea);
-        }
-        */
+         */
     }
 }
