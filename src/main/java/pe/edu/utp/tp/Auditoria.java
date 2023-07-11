@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Auditoria {
     Scanner lector = new Scanner(System.in);
 
-    public String pathArchivo = "F:\\UTP\\CICLO III\\TALLER DE PROGRAMACION\\ProyectoFinal\\src\\main\\java\\pe\\edu\\utp\\tp\\auditoria.log";
+    public String pathArchivo = "./auditoria.log";
 
     private void EscribirEnArchivo(String mensaje){
         String datetime = DateTimeFormatter.ofPattern("dd/MM/yy hh:mm:ss a").format(LocalDateTime.now());
@@ -67,8 +67,10 @@ public class Auditoria {
     }
 
     public void RegistrarAdvertencias(String advertencia){
-        EscribirEnArchivo(String.format("Advertencia generada!: Usuario: No logueado | Advertencia: %s\n",
-                advertencia));
+        String adv = String.format("Advertencia generada!: Usuario: No logueado | Advertencia: %s\n",
+                advertencia);
+        EscribirEnArchivo(adv);
+        System.err.println(adv);
     }
 
 }

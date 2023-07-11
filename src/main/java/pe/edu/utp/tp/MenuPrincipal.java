@@ -1,5 +1,7 @@
 package pe.edu.utp.tp;
 
+import java.util.Arrays;
+
 public class MenuPrincipal {
     private String[] opciones;
     int cantidadOpciones;
@@ -17,5 +19,12 @@ public class MenuPrincipal {
         }
 
         this.opciones[cantidadOpciones++] = opcion;
+    }
+
+    @Override
+    public String toString() {
+        return "MenuPrincipal{" +
+                "opciones=" + Arrays.toString(opciones) +
+                '}';
     }
 }

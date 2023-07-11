@@ -30,15 +30,16 @@ public class Main {
         }
 
         // Menu de opciones
+        /*
         do {
             try {
                 int opcion = leerEntradaUsuario.nextInt();
-                menuPrincipal.OpcionesProceso(opcion);
             }catch (InputMismatchException e){
                 System.err.println("ERROR: Solo se admiten números enteros.");
                 auditoria.RegistrarExcepcion(usuario, e);
             }
 
         } while (true);
+         */
     }
 }
