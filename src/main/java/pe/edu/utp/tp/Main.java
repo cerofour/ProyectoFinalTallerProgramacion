@@ -1,6 +1,7 @@
 package pe.edu.utp.tp;
 
 import java.io.FileNotFoundException;
+import java.util.function.Predicate;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,8 +13,16 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
+        Predicate<RegistroCSV> filtrarPorDepartamento = registro -> {
+            if (registro.ValorDeCampo("Departamento").equals("Lambayeque")) {
+                int edad = Integer.parseInt(registro.ValorDeCampo("Edad"));
+                return edad > 19 && edad < 23;
+            }
+            return false;
+        };
+
         for (int i = 0; i < 10; i++) {
-            String linea = lector.SiguienteLinea();
+            RegistroCSV linea = lector.SiguienteRegistroFiltrado(filtrarPorDepartamento);
             System.out.println(linea);
         }
     }
