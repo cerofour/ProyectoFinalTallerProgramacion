@@ -1,4 +1,4 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.Utilidades;
 
 // clase utilitaria para almacenar SOLAMENTE dos valores de cualquier tipo en una sola variable.
 public class Tupla<M, N> {

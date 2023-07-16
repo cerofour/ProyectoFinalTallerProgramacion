@@ -1,22 +1,24 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.Login;
+
+import pe.edu.utp.tp.Auditoria.Auditoria;
+import pe.edu.utp.tp.Utilidades.Tupla;
 
 import java.io.*;
 import java.util.Scanner;
 
 // Clase que tiene como funcion loguear al usuario para acceder a las
-// funciones del programa.
-//
-
-public class VerificarCredenciales {
+// funciones del programa
+// Inicializa los pares usuario/contraseña leyendo el archivo de recursos password.txt
+// luego de este paso ya se puede realizar el login.
+public class VerificadorCredenciales {
     private int intentos = 3;
 
     private Tupla<String, String>[] paresUsuarioContrasena;
     private boolean paresUsuarioContrasenaInicializado;
 
     private String usuario;
-    Auditoria auditoria = new Auditoria();
 
-    public VerificarCredenciales() {
+    public VerificadorCredenciales() {
         this.paresUsuarioContrasena = new Tupla[1];
         paresUsuarioContrasena[0] = new Tupla("dev", "dev");
     }
@@ -37,18 +39,17 @@ public class VerificarCredenciales {
 
     }
 
-    private void CrearParesUsuarioContrasena() {
+    private void CrearParesUsuarioContrasena() throws IOException {
         BufferedReader lector = this.AbrirArchivoUsuarios();
         Auditoria audi = new Auditoria();
         String linea = null;
-        try {
-            linea = lector.readLine();
-            for (linea = lector.readLine(); linea != null; linea = lector.readLine()) {
-                if (linea.startsWith("//"))
-                    continue;
-                String[] usuarioContrasena = linea.split(":");
-                if (usuarioContrasena.length != 2)
-                    continue;
+
+        for (linea = lector.readLine(); linea != null; linea = lector.readLine()) {
+            if (linea.startsWith("//"))
+                 continue;
+            String[] usuarioContrasena = linea.split(":");
+            if (usuarioContrasena.length != 2)
+                continue;
 
                 // TODO: crear una función genérica para hacer añadir un valor a un arreglo.
                 int longitudAnterior = this.paresUsuarioContrasena.length;
@@ -61,9 +62,6 @@ public class VerificarCredenciales {
                 this.paresUsuarioContrasena = nuevoArregloDePares;
                 this.paresUsuarioContrasena[longitudAnterior] = new Tupla(usuarioContrasena[0], usuarioContrasena[1]);
             }
-        } catch (IOException e) {
-            audi.RegistrarExcepcionIrrecuperable(e);
-        }
 
         if (this.paresUsuarioContrasena.length == 1) {
             audi.RegistrarAdvertencias("Archivo de usuarios vacío, utilize las credenciales por defecto dev:dev.");
@@ -71,7 +69,7 @@ public class VerificarCredenciales {
         this.paresUsuarioContrasenaInicializado = true;
     }
 
-    public boolean LoguearUsuario() {
+    public boolean LoguearUsuario() throws IOException {
         boolean archivoLeido;
         boolean  pskNoValido;
         String usuario;
@@ -89,19 +87,19 @@ public class VerificarCredenciales {
             pass = lector.nextLine();
             pskNoValido = false;
 
-            // TODO: refactorizar esto, muchos niveles de indentado.|
+            // TODO: refactorizar esto, muchos niveles de indentado.
             if (intentos > 0){
                 for (int i = 0; i < paresUsuarioContrasena.length; i++) {
                     if (paresUsuarioContrasena[i].primero.equals(usuario)) {
                         if (paresUsuarioContrasena[i].segundo.equals(pass)) {
-                            System.out.println("MENSAJE: Credenciales correctas!");
+                            System.out.println("Credenciales correctas.");
                             this.usuario = usuario;
                             return true;
                         } else {
                             intentos--;
-                            System.out.println("MENSAJE: Credenciales incorrectas!\nIntentos: " + intentos);
+                            System.out.println("Credenciales incorrectas\nQuedan " + intentos + " de loggeo");
                             if (intentos == 0) {
-                                System.out.println("MENSAJE: Intentos agotados.!");
+                                System.out.println("Intentos de loggeo agotados.");
                             }
                             pskNoValido = true;
                         }
@@ -109,7 +107,7 @@ public class VerificarCredenciales {
                 }
                 if(!(pskNoValido)) {
                     intentos--;
-                    System.out.println("MENSAJE: Usuario no encontrado\nIntentos: " + intentos);
+                    System.out.println("Usuario no encontrado\nIntentos: " + intentos);
                 }
             }
         } while (intentos > 0);

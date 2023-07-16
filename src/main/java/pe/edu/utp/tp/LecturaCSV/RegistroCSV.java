@@ -1,8 +1,9 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.LecturaCSV;
 
-import java.lang.reflect.Array;
+import pe.edu.utp.tp.Auditoria.Auditoria;
+import pe.edu.utp.tp.Utilidades.ProcesadorStrings;
+
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class RegistroCSV {
 
