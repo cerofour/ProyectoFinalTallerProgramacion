@@ -12,12 +12,12 @@ import java.util.Scanner;
 public class Auditoria {
     Scanner lector = new Scanner(System.in);
 
-    public String pathArchivo = "./auditoria.log";
+    public String pathArchivoAuditoria = "./auditoria.log";
 
     private void EscribirEnArchivo(String mensaje){
         String datetime = DateTimeFormatter.ofPattern("dd/MM/yy hh:mm:ss a").format(LocalDateTime.now());
         try{
-            File archivo = new File(pathArchivo);
+            File archivo = new File(pathArchivoAuditoria);
             FileWriter escribir = new FileWriter(archivo, true);
             escribir.write(String.format("[%s] %s\n", datetime, mensaje));
             escribir.close();
@@ -26,24 +26,20 @@ public class Auditoria {
         }
     }
 
-    private void PreguntaEjecucion(){
-        System.out.println("[?] Desea continuar con la ejecucion del programa? (s/n): ");
-        char opcionAuditoria = lector.nextLine().toLowerCase().charAt(0);
-        if(opcionAuditoria != 's'){
-            System.exit(1);
-        }
+    private void FinalizarEjecucion(){
+        System.out.println("Se ha registrado una excepción. Revisar el archivo " + this.pathArchivoAuditoria + " para más información.");
     }
 
     public void RegistrarExcepcion(String usuario, Exception excepcion){
         EscribirEnArchivo(String.format("Excepción Capturada!: Usuario: %s | Excepcion: %s | Mensaje: %s\n",
                 usuario, excepcion.toString().split(":")[0], excepcion.getMessage()));
-        PreguntaEjecucion();
+        FinalizarEjecucion();
     }
 
     public void RegistrarExcepcion(Exception excepcion){
         EscribirEnArchivo(String.format("Excepción Capturada!: Usuario: No logueado | Excepcion: %s | Mensaje: %s\n",
                 excepcion.toString().split(":")[0], excepcion.getMessage()));
-        PreguntaEjecucion();
+        FinalizarEjecucion();
     }
 
     public void RegistrarExcepcionIrrecuperable(Exception excepcion){
