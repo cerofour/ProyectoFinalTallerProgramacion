@@ -1,6 +1,7 @@
 package pe.edu.utp.tp;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -16,16 +17,23 @@ public class Programa {
     private Scanner teclado;
     private LectorCSV lectorCSV;
     private String usuario;
+    private VerificadorCredenciales verificadorCredenciales;
 
     public Programa() throws FileNotFoundException {
+        this.verificadorCredenciales = new VerificadorCredenciales();
         this.teclado = new Scanner(System.in);
         this.lectorCSV = new LectorCSV();
         this.lectorCSV.Inicializar();
         this.usuario = "dev"; // cambiar esto
     }
 
-    public void Ejecutar() {
-        this.EjecutarMenuPrincipal();
+    public void Ejecutar() throws Exception {
+        if (this.verificadorCredenciales.LoguearUsuario()) {
+            this.usuario = this.verificadorCredenciales.getUsuario();
+            this.EjecutarMenuPrincipal();
+        } else {
+            System.out.println("No se han podido verificar las credenciales. Finalizando el programa");
+        }
     }
 
     private void EjecutarMenuPrincipal() throws InputMismatchException {
