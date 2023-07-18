@@ -9,12 +9,18 @@ import java.util.function.Predicate;
 public class LectorCSV {
 
     BufferedReader lectorArchivoCSV;
+    // Marca si el lector se encuentra en el final del archivo o no.
+    boolean enElFinalDelArchivo = false;
 
-    public LectorCSV() {
+    // Coloca el BufferedReader al inicio del archivo. Esto debe hacerse después de cada vez que se
+    // termine de leer todo el archivo o no será posible leer otra vez los datos.
+    public void Reiniciar() throws IOException {
+        this.lectorArchivoCSV.mark(0);
+        this.lectorArchivoCSV.reset();
     }
 
     // TODO: este método debería leer un archivo csv del usuario, no del archivo de recursos.
-    public void Inicializar() throws FileNotFoundException {
+    public void Inicializar() throws IOException {
 
         // asigna el archivo CSV del que sacaremos los datos.
         InputStream csvInputStream = getClass()
@@ -29,7 +35,7 @@ public class LectorCSV {
         this.CreaCabeceras();
     }
 
-    private void CreaCabeceras() {
+    private void CreaCabeceras() throws IOException {
         // Despues de crear el BufferedReader,  las cabeceras del archivo CSV. Las cabeceras son los valores separados por coma en la primera línea que
         // NO empieza por // (línea comentada)
 
@@ -57,17 +63,11 @@ public class LectorCSV {
         return linea.split(",");
     }
 
-    private String SiguienteLinea() {
-        try {
-            return this.lectorArchivoCSV.readLine();
-        } catch (IOException e) {
-            Auditoria audi = new Auditoria();
-            audi.RegistrarExcepcion(e);
-            return null;
-        }
+    private String SiguienteLinea() throws IOException {
+        return this.lectorArchivoCSV.readLine();
     }
 
-    public RegistroCSV SiguienteRegistro() {
+    public RegistroCSV SiguienteRegistro() throws IOException {
         RegistroCSV registro = new RegistroCSV();
 
         String linea = this.SiguienteLinea();
@@ -78,18 +78,25 @@ public class LectorCSV {
         return registro;
     }
 
-    public RegistroCSV SiguienteRegistroFiltrado(Predicate<RegistroCSV> condicion) {
+    public RegistroCSV SiguienteRegistroFiltrado(Predicate<RegistroCSV> condicion) throws IOException {
+        if (this.enElFinalDelArchivo)
+            return null;
+
         RegistroCSV registro = new RegistroCSV();
 
-        String linea = this.SiguienteLinea();
-        while (linea != null) {
+        while (true) {
+            String linea = this.SiguienteLinea();
+
+            // fin del archivo CSV
+            if (linea == null) {
+                this.enElFinalDelArchivo = true;
+                return null;
+            }
             String[] valores = this.ProcesarLineaCSV(linea);
             registro.setValores(valores);
 
             if (condicion.test(registro)) {
                 break;
-            } else {
-                linea = this.SiguienteLinea();
             }
         }
 

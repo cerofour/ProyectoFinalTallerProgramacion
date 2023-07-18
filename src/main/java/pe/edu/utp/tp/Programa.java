@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.function.Predicate;
 
 enum AccionesReporte {
     Invalida, // esta nunca debería ser lanzada en ningún momento ya que solo se usa para marcar el cero.
@@ -12,19 +13,22 @@ enum AccionesReporte {
     RegresarMenu, // Regresar al menú principal
 }
 
+// La clase Programa abstrae todo aquello que es específico a esta aplicación
+// como por ejemplo: los menues, los cálculos estadísticos y las peticiones de información al usuario.
 public class Programa {
 
     private Scanner teclado;
     private LectorCSV lectorCSV;
     private String usuario;
     private VerificadorCredenciales verificadorCredenciales;
+    private TablaImprimible tablaImprimible;
 
-    public Programa() throws FileNotFoundException {
+    public Programa() throws Exception {
         this.verificadorCredenciales = new VerificadorCredenciales();
         this.teclado = new Scanner(System.in);
         this.lectorCSV = new LectorCSV();
         this.lectorCSV.Inicializar();
-        this.usuario = "dev"; // cambiar esto
+        this.tablaImprimible = new TablaImprimible();
     }
 
     public void Ejecutar() throws Exception {
@@ -36,7 +40,7 @@ public class Programa {
         }
     }
 
-    private void EjecutarMenuPrincipal() throws InputMismatchException {
+    private void EjecutarMenuPrincipal() throws Exception {
 
         boolean salir = false;
         int opcion = 0;
@@ -133,9 +137,50 @@ public class Programa {
     private void OpcionMenu2(int edadMinima, int edadMaxima, String departamento) {
     }
 
-    private void OpcionMenu1(String departamento) {
-        this.SubmenuModulo(1, "PERSONAS POR CONDICIóN DE DONACIóN");
+    // La opcion 1 nos reporta la cantidad de personas por condición de donación dado un departamento.
+    // Solo nos interesa entonces, calcular cuantas personas han respondido SI, NO o NE.
+    private void OpcionMenu1(String departamento) throws Exception {
+        AccionesReporte accion = this.SubmenuModulo(1, "PERSONAS POR CONDICIóN DE DONACIóN");
 
+        if (accion == AccionesReporte.Invalida || accion == AccionesReporte.RegresarMenu)
+            return;
+
+        String[] cabeceras = {"Donación", "Frecuencia", "Frecuencia Porcentual"};
+        this.tablaImprimible.setCabeceras(cabeceras);
+        Predicate<RegistroCSV> filtrarPorDepartamento = registro -> registro.ValorDeCampo("Departamento").equals(departamento);
+        int cantidadSi = 0, cantidadNo = 0, cantidadNE = 0, totalPersonas = 0;
+
+        RegistroCSV registro = this.lectorCSV.SiguienteRegistroFiltrado(filtrarPorDepartamento);
+        while (registro != null) {
+            String donacion = registro.ValorDeCampo("Donacion");
+            switch (donacion) {
+                case "SI" -> cantidadSi++;
+                case "NO" -> cantidadNo++;
+                case "NE" -> cantidadNE++;
+            }
+            totalPersonas++;
+            registro = this.lectorCSV.SiguienteRegistroFiltrado(filtrarPorDepartamento);
+        }
+
+        double frecuenciaPorcentualSi = Math.round((double) cantidadSi/(double) totalPersonas * 100.0);
+        double frecuenciaPorcentualNo = Math.round((double) cantidadNo/(double) totalPersonas * 100.0);
+        double frecuenciaPorcentualNE = Math.round((double) cantidadNE/(double) totalPersonas * 100.0);
+
+        // Imprime tres filas para la tabla
+        String[] fila1 = {"SI", Integer.toString(cantidadSi), Double.toString(frecuenciaPorcentualSi)};
+        String[] fila2 = {"NO", Integer.toString(cantidadNo), Double.toString(frecuenciaPorcentualNo)};
+        String[] fila3 = {"NE", Integer.toString(cantidadNE), Double.toString(frecuenciaPorcentualNE)};
+
+        this.tablaImprimible.setTablaGenerada(fila1);
+        this.tablaImprimible.setTablaGenerada(fila2);
+        this.tablaImprimible.setTablaGenerada(fila3);
+
+        if (accion == AccionesReporte.ImprimirPantalla)
+            this.tablaImprimible.ImprimirTabla();
+        else if (accion == AccionesReporte.ExportarArchivo)
+            this.tablaImprimible.ImprimirAArchivo(String.format("personas-por-condicion-donacion-%s", departamento));
+
+        this.lectorCSV.Reiniciar();
     }
 
     private AccionesReporte SubmenuModulo(int numeroOpcion, String nombreOpcion) throws InputMismatchException {
