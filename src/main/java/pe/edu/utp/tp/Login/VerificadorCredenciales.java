@@ -1,4 +1,7 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.Login;
+
+import pe.edu.utp.tp.Auditoria.Auditoria;
+import pe.edu.utp.tp.Utilidades.Tupla;
 
 import java.io.*;
 import java.util.Scanner;

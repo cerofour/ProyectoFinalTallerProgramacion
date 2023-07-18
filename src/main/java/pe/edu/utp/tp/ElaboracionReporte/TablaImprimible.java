@@ -1,4 +1,4 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.ElaboracionReporte;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,6 +15,10 @@ public class TablaImprimible {
         return linea.length() + espaciosSeparador.length();
     }
 
+    public void AnadirSeparador() {
+        this.tablaGenerada.append(this.separador).append("\n");
+    }
+
     public void setCabeceras(String[] cabeceras) {
         //this.cabeceras = cabeceras;
         this.tablaGenerada.delete(0, this.tablaGenerada.length()); //Borrado de tabla completa
@@ -25,12 +29,14 @@ public class TablaImprimible {
         this.tablaGenerada.append(this.separador).append("\n");
     }
 
-    public boolean setTablaGenerada(String[] datos) throws Exception {
+    public boolean setTablaGenerada(String... datos) throws Exception {
         StringBuilder stringFormat = new StringBuilder();
         if (this.tablaGenerada.length() == 0)
             throw new Exception("No se estableció las cabeceras para generar la tabla.");
 
-        for (int i = 0; i < this.longitudesCabeceras.length; i++) {
+        int limite = Math.min(this.longitudesCabeceras.length, datos.length);
+
+        for (int i = 0; i < limite; i++) {
             stringFormat.append("%-").append(this.longitudesCabeceras[i]).append("s");
             datos[i] = (datos[i].length() > this.longitudesCabeceras[i])
                     ? datos[i].substring(0, this.longitudesCabeceras[i]) : datos[i];
@@ -48,7 +54,6 @@ public class TablaImprimible {
         return true;
     }
 
-
     //Override??
     public void ImprimirTabla() {
         /*
@@ -62,7 +67,6 @@ public class TablaImprimible {
         ad.ImprimirTabla(cabecera, datos);
          */
 
-        this.tablaGenerada.append(this.separador).append("\n");
         System.out.println(this.tablaGenerada);
     }
 
@@ -70,7 +74,6 @@ public class TablaImprimible {
     public void ImprimirAArchivo(String rutaArchivo) throws IOException {
         File archivo = new File(rutaArchivo);
         FileWriter escribir = new FileWriter(archivo, true);
-        this.tablaGenerada.append(this.separador).append("\n");
         escribir.write(this.tablaGenerada.toString());
         escribir.close();
     }

@@ -1,4 +1,4 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.LecturaCSV;
 
 import java.io.*;
 import java.util.function.Predicate;
@@ -9,51 +9,61 @@ import java.util.function.Predicate;
 public class LectorCSV {
 
     BufferedReader lectorArchivoCSV;
+    FileInputStream archivoCSV;
     // Marca si el lector se encuentra en el final del archivo o no.
     boolean enElFinalDelArchivo = false;
 
     // Coloca el BufferedReader al inicio del archivo. Esto debe hacerse después de cada vez que se
     // termine de leer todo el archivo o no será posible leer otra vez los datos.
+    private void InicializarLector() throws IOException {
+        // asigna el archivo CSV del que extreaeremos los datos.
+
+        this.archivoCSV = new FileInputStream(getClass()
+                .getClassLoader()
+                .getResource("soypro.csv")
+                .getPath());
+
+        if (this.lectorArchivoCSV != null)
+            this.lectorArchivoCSV.close();
+        this.lectorArchivoCSV = new BufferedReader(new InputStreamReader(this.archivoCSV));
+    }
+
     public void Reiniciar() throws IOException {
-        this.lectorArchivoCSV.mark(0);
-        this.lectorArchivoCSV.reset();
+        this.archivoCSV.close();
+        this.InicializarLector();
+        this.SaltarComentarios();
+        this.lectorArchivoCSV.readLine(); // Saltar la línea de cabeceras
     }
 
     // TODO: este método debería leer un archivo csv del usuario, no del archivo de recursos.
-    public void Inicializar() throws IOException {
+    public void Inicializar() throws Exception {
 
-        // asigna el archivo CSV del que sacaremos los datos.
-        InputStream csvInputStream = getClass()
-                .getClassLoader()
-                .getResourceAsStream("Registro 2022 Donantes Órganos Perú (DATASET).csv");
-        if (csvInputStream == null)
-            throw new FileNotFoundException("Base de datos inexistente");
-
-        this.lectorArchivoCSV = new BufferedReader(new InputStreamReader(csvInputStream));
+        this.InicializarLector();
 
         // inicializa todo lo demás que sea necesario.
-        this.CreaCabeceras();
+        if (RegistroCSV.getCabeceras() == null)
+            this.CreaCabeceras();
     }
 
-    private void CreaCabeceras() throws IOException {
+    private String SaltarComentarios() throws IOException {
+            // Al final de este bucle, lineaActual debería ser la linea que contiene las cabeceras.
+        String lineaActual = this.SiguienteLinea();
+        for (; lineaActual != null && lineaActual.length() > 0; lineaActual = this.SiguienteLinea())
+            if (lineaActual.trim().startsWith("//") == false)
+                return lineaActual;
+
+        // no alcanzable
+        return null;
+    }
+
+    private void CreaCabeceras() throws Exception {
         // Despues de crear el BufferedReader,  las cabeceras del archivo CSV. Las cabeceras son los valores separados por coma en la primera línea que
         // NO empieza por // (línea comentada)
 
-        // Al final de este bucle, lineaActual debería ser la linea que contiene las cabeceras.
-        String lineaActual = this.SiguienteLinea();
-        for (; lineaActual != null && lineaActual.length() > 0; lineaActual = this.SiguienteLinea()) {
-            if (lineaActual.startsWith("//"))
-                continue;
-            else break;
-        }
+        String linea = this.SaltarComentarios();
 
         // Archivo vacío
-        if (lineaActual == null) {
-            RegistroCSV.setCabecerasVacias();
-            return;
-        }
-
-        String[] cabeceras = this.ProcesarLineaCSV(lineaActual);
+        String[] cabeceras = this.ProcesarLineaCSV(linea);
         RegistroCSV.setCabeceras(cabeceras);
     }
 
@@ -79,8 +89,10 @@ public class LectorCSV {
     }
 
     public RegistroCSV SiguienteRegistroFiltrado(Predicate<RegistroCSV> condicion) throws IOException {
-        if (this.enElFinalDelArchivo)
-            return null;
+        if (this.enElFinalDelArchivo) {
+            this.Reiniciar();
+            this.enElFinalDelArchivo = false;
+        }
 
         RegistroCSV registro = new RegistroCSV();
 

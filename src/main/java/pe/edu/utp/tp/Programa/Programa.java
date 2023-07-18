@@ -1,17 +1,15 @@
-package pe.edu.utp.tp;
+package pe.edu.utp.tp.Programa;
 
-import java.io.FileNotFoundException;
+import pe.edu.utp.tp.ElaboracionReporte.TablaImprimible;
+import pe.edu.utp.tp.LecturaCSV.LectorCSV;
+import pe.edu.utp.tp.LecturaCSV.RegistroCSV;
+import pe.edu.utp.tp.Login.VerificadorCredenciales;
+import pe.edu.utp.tp.Utilidades.ProcesadorStrings;
+
 import java.io.IOException;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Predicate;
 
-enum AccionesReporte {
-    Invalida, // esta nunca debería ser lanzada en ningún momento ya que solo se usa para marcar el cero.
-    ImprimirPantalla, // Imprimir el reporte en una tabla formateada a la pantalla
-    ExportarArchivo, // Imprimir y exportar el reporte a un archivo plano
-    RegresarMenu, // Regresar al menú principal
-}
 
 // La clase Programa abstrae todo aquello que es específico a esta aplicación
 // como por ejemplo: los menues, los cálculos estadísticos y las peticiones de información al usuario.
@@ -63,13 +61,7 @@ public class Programa {
             this.teclado.nextLine();
 
             switch (opcion){
-                case 1 -> {
-                    System.out.println("Esta es la opción 1 ");
-                    //El usuario ingresa un departamento de su preferencia
-                    System.out.println("Ingrese el departamento a filtrar");
-                    String departamento = this.teclado.nextLine();
-                    this.OpcionMenu1(departamento);
-                }
+                case 1 -> this.OpcionMenu1();
 
                 case 2 -> {
                     System.out.println("ARREGLAR ESTO ");
@@ -126,7 +118,7 @@ public class Programa {
             }
         }
         System.out.println("Fin de la ejecución.");
-}
+    }
 
     private void OpcionMenu4(String condicionDonacion) {
     }
@@ -139,17 +131,17 @@ public class Programa {
 
     // La opcion 1 nos reporta la cantidad de personas por condición de donación dado un departamento.
     // Solo nos interesa entonces, calcular cuantas personas han respondido SI, NO o NE.
-    private void OpcionMenu1(String departamento) throws Exception {
-        AccionesReporte accion = this.SubmenuModulo(1, "PERSONAS POR CONDICIóN DE DONACIóN");
+    private void OpcionMenu1() throws Exception {
 
-        if (accion == AccionesReporte.Invalida || accion == AccionesReporte.RegresarMenu)
-            return;
+        String departamento = this.SolicitarDatosAUsuario("Ingrese el departamento a filtrar").get(0);
 
+        // Filtrado de datos
         String[] cabeceras = {"Donación", "Frecuencia", "Frecuencia Porcentual"};
         this.tablaImprimible.setCabeceras(cabeceras);
         Predicate<RegistroCSV> filtrarPorDepartamento = registro -> registro.ValorDeCampo("Departamento").equals(departamento);
-        int cantidadSi = 0, cantidadNo = 0, cantidadNE = 0, totalPersonas = 0;
 
+        // Conteo
+        int cantidadSi = 0, cantidadNo = 0, cantidadNE = 0, totalPersonas = 0;
         RegistroCSV registro = this.lectorCSV.SiguienteRegistroFiltrado(filtrarPorDepartamento);
         while (registro != null) {
             String donacion = registro.ValorDeCampo("Donacion");
@@ -162,28 +154,48 @@ public class Programa {
             registro = this.lectorCSV.SiguienteRegistroFiltrado(filtrarPorDepartamento);
         }
 
-        double frecuenciaPorcentualSi = Math.round((double) cantidadSi/(double) totalPersonas * 100.0);
-        double frecuenciaPorcentualNo = Math.round((double) cantidadNo/(double) totalPersonas * 100.0);
-        double frecuenciaPorcentualNE = Math.round((double) cantidadNE/(double) totalPersonas * 100.0);
+        // Calculos estadísiticos
+
+        double frecuenciaPorcentualSi = (double) cantidadSi/(double) totalPersonas * 100.0;
+        double frecuenciaPorcentualNo = (double) cantidadNo/(double) totalPersonas * 100.0;
+        double frecuenciaPorcentualNE = (double) cantidadNE/(double) totalPersonas * 100.0;
+        double porcentajeTotal = frecuenciaPorcentualNE + frecuenciaPorcentualNo + frecuenciaPorcentualSi;
 
         // Imprime tres filas para la tabla
-        String[] fila1 = {"SI", Integer.toString(cantidadSi), Double.toString(frecuenciaPorcentualSi)};
-        String[] fila2 = {"NO", Integer.toString(cantidadNo), Double.toString(frecuenciaPorcentualNo)};
-        String[] fila3 = {"NE", Integer.toString(cantidadNE), Double.toString(frecuenciaPorcentualNE)};
+        this.tablaImprimible.setTablaGenerada("SI", Integer.toString(cantidadSi), ProcesadorStrings.DoubleAString2Dec(frecuenciaPorcentualSi));
+        this.tablaImprimible.setTablaGenerada("NO", Integer.toString(cantidadNo), ProcesadorStrings.DoubleAString2Dec(frecuenciaPorcentualNo));
+        this.tablaImprimible.setTablaGenerada("NE", Integer.toString(cantidadNE), ProcesadorStrings.DoubleAString2Dec(frecuenciaPorcentualNE));
+        this.tablaImprimible.AnadirSeparador();
+        this.tablaImprimible.setTablaGenerada("TOTAL", Integer.toString(totalPersonas), ProcesadorStrings.DoubleAString2Dec(porcentajeTotal));
 
-        this.tablaImprimible.setTablaGenerada(fila1);
-        this.tablaImprimible.setTablaGenerada(fila2);
-        this.tablaImprimible.setTablaGenerada(fila3);
-
-        if (accion == AccionesReporte.ImprimirPantalla)
-            this.tablaImprimible.ImprimirTabla();
-        else if (accion == AccionesReporte.ExportarArchivo)
-            this.tablaImprimible.ImprimirAArchivo(String.format("personas-por-condicion-donacion-%s", departamento));
-
-        this.lectorCSV.Reiniciar();
+        BucleSubMenuModulo(departamento, "PERSONAS POR CONDICIÓIN DE DONACIÓN");
     }
 
-    private AccionesReporte SubmenuModulo(int numeroOpcion, String nombreOpcion) throws InputMismatchException {
+    private void BucleSubMenuModulo(String nombreReporte, String nombreOpcion) throws IOException {
+        while (true) {
+            AccionesReporte accion = this.SubMenuModulo(1, nombreOpcion);
+
+            if (accion == AccionesReporte.ImprimirPantalla)
+                this.tablaImprimible.ImprimirTabla();
+            else if (accion == AccionesReporte.ExportarArchivo)
+                this.tablaImprimible.ImprimirAArchivo(String.format("personas-por-condicion-donacion-%s", nombreReporte));
+            else if (accion == AccionesReporte.Invalida || accion == AccionesReporte.RegresarMenu)
+                return;
+        }
+    }
+
+    private List<String> SolicitarDatosAUsuario(String... mensajes) {
+        List<String> datos = new ArrayList<>();
+
+        for (String msg : mensajes) {
+            System.out.print(msg + " ");
+            datos.add(this.teclado.nextLine());
+        }
+
+        return datos;
+    }
+
+    private AccionesReporte SubMenuModulo(int numeroOpcion, String nombreOpcion) throws InputMismatchException {
         final String separador = "-".repeat(nombreOpcion.length() + 20);
         System.out.println(separador);
         System.out.printf("MODULO %d - %s\n", numeroOpcion, nombreOpcion);
@@ -195,6 +207,7 @@ public class Programa {
                 """);
         while (true) {
             int i = this.teclado.nextInt(); // lanza excepcion
+            this.teclado.nextLine();
             if (i == 1 || i == 2 || i == 3)
                 return AccionesReporte.values()[i];
         }
