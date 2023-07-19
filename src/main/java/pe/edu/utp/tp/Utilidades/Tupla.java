@@ -1,5 +1,8 @@
 package pe.edu.utp.tp.Utilidades;
 
+
+// Autor del modulo: Leandro
+
 // clase utilitaria para almacenar SOLAMENTE dos valores de cualquier tipo en una sola variable.
 public class Tupla<M, N> {
     public M primero;

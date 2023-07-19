@@ -6,6 +6,8 @@ import pe.edu.utp.tp.Utilidades.Tupla;
 import java.io.*;
 import java.util.Scanner;
 
+// Autor del modulo: Leandro
+
 // Clase que tiene como funcion loguear al usuario para acceder a las
 // funciones del programa
 // Inicializa los pares usuario/contraseña leyendo el archivo de recursos password.txt

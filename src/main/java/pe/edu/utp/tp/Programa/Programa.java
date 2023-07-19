@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
+// Autores del modulo: Diego, Kevin, Leandro
 
 // La clase Programa abstrae todo aquello que es específico a esta aplicación
 // como por ejemplo: los menues, los cálculos estadísticos y las peticiones de información al usuario.
@@ -56,63 +57,19 @@ public class Programa {
                 |                            ELIJA UNA OPCIÓN                                 |   
                 | ============================================================================| 
                 """);
-            System.out.println("Introduce un número de acuerdo a la opción que desea ");
+            System.out.print("Introduce un número de acuerdo a la opción que desea [1-5]: ");
             opcion = this.teclado.nextInt();
             this.teclado.nextLine();
 
             switch (opcion){
                 case 1 -> this.OpcionMenu1();
 
-                case 2 -> {
-                    System.out.println("ARREGLAR ESTO ");
-                    //El usuario ingresa edad
-                    System.out.println("Ingrese la edad mínima del donante");
-                    int edad_minima = this.teclado.nextInt();
-                    this.teclado.nextLine();
+                case 2 -> this.OpcionMenu2();
 
-                    System.out.println("Ingrese la edad máxima del donante");
-                    int edad_maxima = this.teclado.nextInt();
-                    this.teclado.nextLine();
+                case 3 -> this.OpcionMenu3();
 
-                    System.out.println("Ingrese el departamento a filtrar");
-                    String departamento = this.teclado.nextLine();
+                case 4 -> this.OpcionMenu4();
 
-
-                    this.OpcionMenu2(edad_minima, edad_maxima, departamento);
-                }
-
-                case 3 -> {
-                    System.out.println("CAMBIAR ESTE MENSAJE ");
-                    //Usuario ingresa una edad y sexo
-                    System.out.println("Ingrese el sexo a filtrar, si es hombre (H) y si es mujer (M) ");
-
-                    while (true) {
-                        String sexo = this.teclado.nextLine().toUpperCase();
-                        if (sexo.equals("H") || sexo.equals("M")) {
-                            System.out.println("Ingrese la edad a filtrar");
-                            int edad = this.teclado.nextInt();
-                            this.teclado.nextLine();
-                            this.OpcionMenu3(sexo, edad);
-                            break;
-                        }
-                        else
-                            System.out.println("El sexo ingresado no es valido ");
-                    }
-                }
-                case 4 -> {
-                    System.out.println("ARREGLAR ESTE MENSAJE");
-
-                    // TODO: Este bucle debe abstraerse tal vez?
-                    while (true) {
-                        System.out.println("Ingrese la condición de donación a filtrar (SI, NO, NE)");
-                        String condicionDonacion = this.teclado.nextLine().toUpperCase();
-                        if (condicionDonacion.equals("SI") || condicionDonacion.equals("NO") || condicionDonacion.equals("NE")) {
-                            this.OpcionMenu4(condicionDonacion);
-                            break;
-                        }
-                        else System.out.println("La condicion ingresada no es valida ");
-                    }
-                }
                 case 5 -> salir = true;
                 default -> System.out.println("Las ocpiones que usted debe elegir es entre (1-5) ");
             }
@@ -120,13 +77,60 @@ public class Programa {
         System.out.println("Fin de la ejecución.");
     }
 
-    private void OpcionMenu4(String condicionDonacion) {
+    private void OpcionMenu4() {
+        //String condicionDonacion = this.SolicitarDatosAUsuario("Ingrese la condicion de donacion a filtrar (SI, NO, NE)").get(0);
+        while (true) {
+            System.out.print("Ingrese la condición de donación a filtrar (SI, NO, NE): ");
+            String condicionDonacion = this.teclado.nextLine().toUpperCase();
+            if (condicionDonacion.equals("SI") || condicionDonacion.equals("NO") || condicionDonacion.equals("NE")) {
+                break;
+            }
+            else System.out.println("La condicion ingresada no es valida ");
+        }
+        String[] cabeceras = {"Departamento", "Cantidad", "Donacion", "Frecuencia", "Frecuencia Porcentual"};
+        this.tablaImprimible.setCabeceras(cabeceras);
+        //Predicate<RegistroCSV> filtrarPorCondicionDonacion = registro -> registro.ValorDeCampo("");
     }
 
-    private void OpcionMenu3(String sexo, int edad) {
+    private void OpcionMenu3() {
+        String edad = this.SolicitarDatosAUsuario("Ingrese la edad a filtrar").get(0);
+        while (true) {
+            System.out.print("Ingrese el sexo a filtrar (Hombre/Mujer): ");
+            String sexo = this.teclado.nextLine().toUpperCase();
+            if (sexo.startsWith("H") || sexo.startsWith("M")) {
+                this.teclado.nextLine();
+                break;
+            }
+            else
+                System.out.println("El sexo ingresado no es valido ");
+        }
+        String[] cabeceras = {""};
+        this.tablaImprimible.setCabeceras(cabeceras);
+        //Predicate<RegistroCSV> filtrarPorEdadySexo = registro -> registro.ValorDeCampo("");
+
     }
 
-    private void OpcionMenu2(int edadMinima, int edadMaxima, String departamento) {
+    private void OpcionMenu2() throws Exception {
+        String edad_minima= this.SolicitarDatosAUsuario("Ingrese la edad mínima del donante").get(0);
+        String edad_maxima = this.SolicitarDatosAUsuario("Ingrese la edad máxima del donante").get(0);
+        String departamento = this.SolicitarDatosAUsuario("Ingrese el departamento a filtrar").get(0);
+        // Filtrado de datos
+        String[] cabeceras = {"Edad", "Frecuencia", "Frecuencia Porcentual"};
+        this.tablaImprimible.setCabeceras(cabeceras);
+        Predicate<RegistroCSV> filtraPorRangoEdadYDepartamento = registro -> (registro.ValorDeCampo("Departamento").equals(departamento) &&
+                ((Integer.parseInt(registro.ValorDeCampo("Edad")) >= Math.min(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima))
+                        && Integer.parseInt(registro.ValorDeCampo("Edad")) <= Math.max(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima)))));
+
+        // Conteo
+        // PAPETO, AQUI PIENSO EN CREAR UN ARRAY CON TODAS LAS EDADES DESDE LA MINIMA HASTA LA MAXIMA, LUEGO ESTE ARRAY SE PASA POR UN FOR CONTANDO
+        // LA CANTIDAD DE PERSONAS, ARRAY BIDIMENSIONAL, EL PRIMER ARREGLO SERAN LAS EDADES Y EL SEGUNDO EL CONTEO
+        // SI TIENES OTRA IDEA, LA PONES P MMGV0
+        int rangoEdadesLongitudArray = Math.max(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima))
+                - Math.min(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima));
+        int[][] rangoEdades = new int[rangoEdadesLongitudArray][rangoEdadesLongitudArray];
+
+
+
     }
 
     // La opcion 1 nos reporta la cantidad de personas por condición de donación dado un departamento.
@@ -188,7 +192,7 @@ public class Programa {
         List<String> datos = new ArrayList<>();
 
         for (String msg : mensajes) {
-            System.out.print(msg + " ");
+            System.out.print(msg + ": ");
             datos.add(this.teclado.nextLine());
         }
 

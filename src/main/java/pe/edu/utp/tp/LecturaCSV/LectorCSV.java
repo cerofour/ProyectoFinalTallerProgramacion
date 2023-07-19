@@ -3,6 +3,8 @@ package pe.edu.utp.tp.LecturaCSV;
 import java.io.*;
 import java.util.function.Predicate;
 
+// Autor del modulo: Diego Alexis Llacsahuanga Buques
+
 // Esta clase se utiliza para abrir y leer un archivo CSV.
 // define diversos métodos para extraer información por regsitro/campo, etc.
 
