@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
+// Autor de modulo: Kevin Huanca Fernández
+
 // Esta clase se utiliza para capturar las excepciones generadas en tiempo de ejecucion
 // y son guardadas en el archivo auditoria.log con detalles sobre la excepcion.
 //

@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
+// Autor del modulo: Kevin Huanca Fernández
+
 public class TablaImprimible {
     private final String espaciosSeparador = " ".repeat(5);
     private final StringBuilder tablaGenerada = new StringBuilder();

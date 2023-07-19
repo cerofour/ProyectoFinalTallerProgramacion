@@ -5,6 +5,8 @@ import pe.edu.utp.tp.Utilidades.ProcesadorStrings;
 
 import java.util.Arrays;
 
+// Autor del modulo: Diego Alexis Llacsahuanga Buques
+
 public class RegistroCSV {
 
 	// una cabecera es el nombre de una columna csv

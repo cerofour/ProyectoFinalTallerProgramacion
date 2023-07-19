@@ -3,6 +3,8 @@ package pe.edu.utp.tp.LecturaCSV;
 import java.io.*;
 import java.util.function.Predicate;
 
+// Autor del modulo: Diego Alexis Llacsahuanga Buques
+
 // Esta clase se utiliza para abrir y leer un archivo CSV.
 // define diversos métodos para extraer información por regsitro/campo, etc.
 
@@ -46,7 +48,7 @@ public class LectorCSV {
     }
 
     private String SaltarComentarios() throws IOException {
-            // Al final de este bucle, lineaActual debería ser la linea que contiene las cabeceras.
+        // Al final de este bucle, lineaActual debería ser la linea que contiene las cabeceras.
         String lineaActual = this.SiguienteLinea();
         for (; lineaActual != null && lineaActual.length() > 0; lineaActual = this.SiguienteLinea())
             if (lineaActual.trim().startsWith("//") == false)
