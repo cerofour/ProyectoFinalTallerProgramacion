@@ -77,67 +77,166 @@ public class Programa {
         System.out.println("Fin de la ejecución.");
     }
 
-    private void OpcionMenu4() {
-        //String condicionDonacion = this.SolicitarDatosAUsuario("Ingrese la condicion de donacion a filtrar (SI, NO, NE)").get(0);
-        while (true) {
-            System.out.print("Ingrese la condición de donación a filtrar (SI, NO, NE): ");
-            String condicionDonacion = this.teclado.nextLine().toUpperCase();
-            if (condicionDonacion.equals("SI") || condicionDonacion.equals("NO") || condicionDonacion.equals("NE")) {
-                break;
-            }
-            else System.out.println("La condicion ingresada no es valida ");
-        }
-        String[] cabeceras = {"Departamento", "Cantidad", "Donacion", "Frecuencia", "Frecuencia Porcentual"};
+    private void OpcionMenu4() throws Exception {
+        String donacion = this.SolicitarDatosAUsuario("Ingrese la condición de donación");
+
+        String[] cabeceras = {"Departamento", "Frecuencia", "Frecuencia Porcentual"};
         this.tablaImprimible.setCabeceras(cabeceras);
-        //Predicate<RegistroCSV> filtrarPorCondicionDonacion = registro -> registro.ValorDeCampo("");
+
+        // Filtro de datos
+        Predicate<RegistroCSV> filtraDonantesPorEdadYSexo = registro -> {
+            return registro.ValorDeCampo("Donacion").equals(donacion);
+        };
+
+        LinkedHashMap<String, Integer> conteoPorDepartamento = new LinkedHashMap<>();
+
+        Integer totalPersonas = 0;
+
+        RegistroCSV registro = this.lectorCSV.SiguienteRegistroFiltrado(filtraDonantesPorEdadYSexo);
+        while (registro != null) {
+
+            String clave = registro.ValorDeCampo("Departamento");
+
+            Integer conteo = Integer.parseInt(registro.ValorDeCampo("Cantidad"));
+            if (conteoPorDepartamento.containsKey(clave))
+                conteo += conteoPorDepartamento.get(clave);
+
+            conteoPorDepartamento.put(clave, conteo);
+
+            registro = this.lectorCSV.SiguienteRegistroFiltrado(filtraDonantesPorEdadYSexo);
+        }
+
+        for (Integer n : conteoPorDepartamento.values())
+            totalPersonas += n;
+
+        double totalPorcentual = 0.0;
+        for (String departamento : conteoPorDepartamento.keySet()) {
+            String freq = Integer.toString(conteoPorDepartamento.get(departamento));
+            double porcentaje = (double) conteoPorDepartamento.get(departamento) / (double) totalPersonas * 100.0;
+            totalPorcentual += porcentaje;
+            String freqPorcentual = ProcesadorStrings.DoubleAString2Dec(porcentaje);
+            this.tablaImprimible.setTablaGenerada(departamento, freq, freqPorcentual);
+        }
+
+        this.tablaImprimible.AnadirSeparador();
+        this.tablaImprimible.setTablaGenerada("TOTAL", Integer.toString(totalPersonas), ProcesadorStrings.DoubleAString2Dec(totalPorcentual));
+        BucleSubMenuModulo(donacion, "PERSONAS POR DEPARTAMENTO DADA UNA CONDICION DE DONACION");
     }
 
-    private void OpcionMenu3() {
-        String edad = this.SolicitarDatosAUsuario("Ingrese la edad a filtrar").get(0);
-        while (true) {
-            System.out.print("Ingrese el sexo a filtrar (Hombre/Mujer): ");
-            String sexo = this.teclado.nextLine().toUpperCase();
-            if (sexo.startsWith("H") || sexo.startsWith("M")) {
-                this.teclado.nextLine();
-                break;
-            }
-            else
-                System.out.println("El sexo ingresado no es valido ");
-        }
-        String[] cabeceras = {""};
-        this.tablaImprimible.setCabeceras(cabeceras);
-        //Predicate<RegistroCSV> filtrarPorEdadySexo = registro -> registro.ValorDeCampo("");
+    // Donantes por departamento dada una edad y sexo
+    private void OpcionMenu3() throws Exception {
+        String edad = this.SolicitarDatosAUsuario("Ingrese la edad a filtrar");
+        String sexo = this.SolicitarDatosAUsuario("Ingrese el sexo a filtrar");
 
+        String[] cabeceras = {"Departamento", "Frecuencia", "Frecuencia Porcentual"};
+        this.tablaImprimible.setCabeceras(cabeceras);
+
+        // Filtro de datos
+        Predicate<RegistroCSV> filtraDonantesPorEdadYSexo = registro -> {
+            return registro.ValorDeCampo("Donacion").equals("SI") &&
+                    registro.ValorDeCampo("Sexo").equals(sexo) &&
+                    registro.ValorDeCampo("Edad").equals(edad);
+        };
+
+        LinkedHashMap<String, Integer> conteoPorDepartamento = new LinkedHashMap<String, Integer>();
+
+        Integer totalPersonas = 0;
+
+        RegistroCSV registro = this.lectorCSV.SiguienteRegistroFiltrado(filtraDonantesPorEdadYSexo);
+        while (registro != null) {
+
+            String clave = registro.ValorDeCampo("Departamento");
+
+            Integer conteo = Integer.parseInt(registro.ValorDeCampo("Cantidad"));
+            if (conteoPorDepartamento.containsKey(clave))
+                conteo += conteoPorDepartamento.get(clave);
+
+            conteoPorDepartamento.put(clave, conteo);
+
+            registro = this.lectorCSV.SiguienteRegistroFiltrado(filtraDonantesPorEdadYSexo);
+        }
+
+        for (Integer n : conteoPorDepartamento.values())
+            totalPersonas += n;
+
+        double totalPorcentual = 0.0;
+        for (String departamento : conteoPorDepartamento.keySet()) {
+            String freq = Integer.toString(conteoPorDepartamento.get(departamento));
+            double porcentaje = (double) conteoPorDepartamento.get(departamento) / (double) totalPersonas * 100.0;
+            totalPorcentual += porcentaje;
+            String freqPorcentual = ProcesadorStrings.DoubleAString2Dec(porcentaje);
+            this.tablaImprimible.setTablaGenerada(departamento, freq, freqPorcentual);
+        }
+
+        this.tablaImprimible.AnadirSeparador();
+        this.tablaImprimible.setTablaGenerada("TOTAL", Integer.toString(totalPersonas), ProcesadorStrings.DoubleAString2Dec(totalPorcentual));
+        BucleSubMenuModulo(edad + "-" + sexo, "PERSONAS POR PROVINCIA, SEXO Y CONDICIÓN DE DONACIÓN");
     }
 
     private void OpcionMenu2() throws Exception {
-        String edad_minima= this.SolicitarDatosAUsuario("Ingrese la edad mínima del donante").get(0);
-        String edad_maxima = this.SolicitarDatosAUsuario("Ingrese la edad máxima del donante").get(0);
-        String departamento = this.SolicitarDatosAUsuario("Ingrese el departamento a filtrar").get(0);
-        // Filtrado de datos
-        String[] cabeceras = {"Edad", "Frecuencia", "Frecuencia Porcentual"};
+        int edad_minima = Integer.parseInt(this.SolicitarDatosAUsuario("Ingrese la edad mínima del donante"));
+        int edad_maxima = Integer.parseInt(this.SolicitarDatosAUsuario("Ingrese la edad máxima del donante"));
+        String departamento = this.SolicitarDatosAUsuario("Ingrese el departamento a filtrar");
+
+        String[] cabeceras = {"Provincia", "Sexo", "Donación", "Frecuencia", "Frecuencia Porcentual"};
         this.tablaImprimible.setCabeceras(cabeceras);
-        Predicate<RegistroCSV> filtraPorRangoEdadYDepartamento = registro -> (registro.ValorDeCampo("Departamento").equals(departamento) &&
-                ((Integer.parseInt(registro.ValorDeCampo("Edad")) >= Math.min(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima))
-                        && Integer.parseInt(registro.ValorDeCampo("Edad")) <= Math.max(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima)))));
 
-        // Conteo
-        // PAPETO, AQUI PIENSO EN CREAR UN ARRAY CON TODAS LAS EDADES DESDE LA MINIMA HASTA LA MAXIMA, LUEGO ESTE ARRAY SE PASA POR UN FOR CONTANDO
-        // LA CANTIDAD DE PERSONAS, ARRAY BIDIMENSIONAL, EL PRIMER ARREGLO SERAN LAS EDADES Y EL SEGUNDO EL CONTEO
-        // SI TIENES OTRA IDEA, LA PONES P MMGV0
-        int rangoEdadesLongitudArray = Math.max(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima))
-                - Math.min(Integer.parseInt(edad_minima), Integer.parseInt(edad_maxima));
-        int[][] rangoEdades = new int[rangoEdadesLongitudArray][rangoEdadesLongitudArray];
+        // Filtro de datos
+        Predicate<RegistroCSV> filtraPorRangoEdadYDepartamento = registro -> {
+            int edad = Integer.parseInt(registro.ValorDeCampo("Edad"));
+            return registro.ValorDeCampo("Departamento").equals(departamento) && edad >= edad_minima && edad <= edad_maxima;
+        };
 
+        // Cálculo de datos
+        // Para realizar el conteo juntaremos los 3 datos de clasificacion en una sola string y lo utilizaremos como
+        // clave para un HashMap
+        // Provincia | Sexo  | Donacion |
+        // Chiclayo  | Mujer | SI       |
+        // clave: ChiclayoMujerSI
+        // así nos ahorramos bastantes líneas de código
+        LinkedHashMap<String, Integer> conteos = new LinkedHashMap<String, Integer>();
 
+        Integer totalPersonas = 0;
 
+        RegistroCSV registro = this.lectorCSV.SiguienteRegistroFiltrado(filtraPorRangoEdadYDepartamento);
+        while (registro != null) {
+
+            String clave;
+            {
+                String[] vals = {registro.ValorDeCampo("Provincia"), registro.ValorDeCampo("Sexo"), registro.ValorDeCampo("Donacion")};
+                clave = String.join(";", vals);
+            }
+
+            Integer conteo = Integer.parseInt(registro.ValorDeCampo("Cantidad"));
+            if (conteos.containsKey(clave))
+                conteo += conteos.get(clave);
+
+            conteos.put(clave, conteo);
+
+            registro = this.lectorCSV.SiguienteRegistroFiltrado(filtraPorRangoEdadYDepartamento);
+        }
+
+        for (Integer n : conteos.values())
+            totalPersonas += n;
+
+        String[] claves = conteos.keySet().toArray(new String[0]);
+        for (String clave : claves) {
+            String[] valores = clave.split(";");
+            Integer cuenta = conteos.get(clave);
+            String frecPorcentual = ProcesadorStrings.DoubleAString2Dec((double) cuenta / (double) totalPersonas * 100.00);
+            this.tablaImprimible.setTablaGenerada(valores[0], valores[1], valores[2], cuenta.toString(), frecPorcentual);
+        }
+        this.tablaImprimible.AnadirSeparador();
+        this.tablaImprimible.setTablaGenerada("TOTAL", "", "", totalPersonas.toString(), "100.00");
+
+        BucleSubMenuModulo(departamento, "PERSONAS POR PROVINCIA, SEXO Y CONDICIÓN DE DONACIÓN");
     }
 
     // La opcion 1 nos reporta la cantidad de personas por condición de donación dado un departamento.
     // Solo nos interesa entonces, calcular cuantas personas han respondido SI, NO o NE.
     private void OpcionMenu1() throws Exception {
 
-        String departamento = this.SolicitarDatosAUsuario("Ingrese el departamento a filtrar").get(0);
+        String departamento = this.SolicitarDatosAUsuario("Ingrese el departamento a filtrar");
 
         // Filtrado de datos
         String[] cabeceras = {"Donación", "Frecuencia", "Frecuencia Porcentual"};
@@ -182,21 +281,15 @@ public class Programa {
             if (accion == AccionesReporte.ImprimirPantalla)
                 this.tablaImprimible.ImprimirTabla();
             else if (accion == AccionesReporte.ExportarArchivo)
-                this.tablaImprimible.ImprimirAArchivo(String.format("personas-por-condicion-donacion-%s", nombreReporte));
+                this.tablaImprimible.ImprimirAArchivo(String.format("%s-%s", nombreOpcion, nombreReporte));
             else if (accion == AccionesReporte.Invalida || accion == AccionesReporte.RegresarMenu)
                 return;
         }
     }
 
-    private List<String> SolicitarDatosAUsuario(String... mensajes) {
-        List<String> datos = new ArrayList<>();
-
-        for (String msg : mensajes) {
-            System.out.print(msg + ": ");
-            datos.add(this.teclado.nextLine());
-        }
-
-        return datos;
+    private String SolicitarDatosAUsuario(String mensaje) {
+        System.out.print(mensaje + ": ");
+        return this.teclado.nextLine();
     }
 
     private AccionesReporte SubMenuModulo(int numeroOpcion, String nombreOpcion) throws InputMismatchException {
